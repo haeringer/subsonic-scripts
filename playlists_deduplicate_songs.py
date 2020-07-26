@@ -7,6 +7,7 @@ VERSION = os.environ.get('SH_APIVERSION')
 SERVER = os.environ.get('SH_SERVER')
 USER = os.environ.get('SH_USER')
 PASSWD = os.environ.get('SH_PASSWD')
+CLIENT = 'subsonic_automation'
 
 
 def generate_token():
@@ -19,9 +20,8 @@ def generate_token():
 
 def subsonic_getrequest(path):
     token, salt = generate_token()
-    response = requests.get(
-        SERVER + "/rest/" + path + '?u=' + USER + '&t=' + token + '&s=' + salt + '&v=' + VERSION + '&c=' + 'subsonic_automation'
-    )
+    params = {'u': USER, 't': token, 's': salt, 'v': VERSION, 'c': CLIENT}
+    response = requests.get(SERVER + "/rest/" + path, params=params)
     print(response.content)
 
 
