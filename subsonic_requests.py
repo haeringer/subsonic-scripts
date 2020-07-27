@@ -25,3 +25,11 @@ def get(path, extra_param=None):
         params[extra_param['key']] = extra_param['value']
     response = requests.get(SERVER + "/rest/" + path, params=params)
     return response.text
+
+
+def post(path, **kwargs):
+    token, salt = generate_token()
+    params = {'u': USER, 't': token, 's': salt, 'v': VERSION, 'c': CLIENT}
+    params_merged = {**params, **kwargs}
+    response = requests.post(SERVER + "/rest/" + path, params=params_merged)
+    return response.text
