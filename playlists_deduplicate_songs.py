@@ -39,10 +39,28 @@ def get_playlist_song_positions(playlist_id):
     return song_positions
 
 
+def identify_duplicates(song_positions):
+    seen = {}
+    pl_with_dups = {
+        'name': song_positions['playlist_name'],
+        'id': song_positions['playlist_id'],
+        'dups': []
+    }
+    for entry in song_positions['songs']:
+        sid = entry['song_id']
+        if sid not in seen:
+            seen[sid] = 1
+        else:
+            if seen[sid] == 1:
+                pl_with_dups['dups'].append(entry)
+            seen[sid] += 1
+    return pl_with_dups
+
+
 if __name__ == "__main__":
 
     playlist_ids = get_playlist_ids()
 
     for plid in playlist_ids:
         song_positions = get_playlist_song_positions(plid)
-        print(song_positions)
+        identify_duplicates(song_positions)
