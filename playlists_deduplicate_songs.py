@@ -1,37 +1,9 @@
-import os
-import base64
-import hashlib
-import requests
 import xmltodict
-
-
-VERSION = os.environ.get('SH_APIVERSION')
-SERVER = os.environ.get('SH_SERVER')
-USER = os.environ.get('SH_USER')
-PASSWD = os.environ.get('SH_PASSWD')
-CLIENT = 'subsonic_automation'
-
-
-def generate_token():
-    salt = os.urandom(16)
-    salt_encoded = str(base64.b64encode(salt))
-    string_for_md5 = PASSWD + salt_encoded
-    token = hashlib.md5(string_for_md5.encode('utf-8')).hexdigest()
-    return (token, salt_encoded)
-
-
-def subsonic_getrequest(path, extra_param=None):
-    token, salt = generate_token()
-    params = {'u': USER, 't': token, 's': salt, 'v': VERSION, 'c': CLIENT}
-    if extra_param:
-        params[extra_param['key']] = extra_param['value']
-    response = requests.get(SERVER + "/rest/" + path, params=params)
-    # print(response.text)
-    return response.text
+import subsonic_requests
 
 
 def get_playlist_ids():
-    playlists_xml = subsonic_getrequest('getPlaylists')
+    playlists_xml = subsonic_requests.get('getPlaylists')
     playlists_dict = xmltodict.parse(playlists_xml)
     playlists = playlists_dict['subsonic-response']['playlists']['playlist']
 
@@ -44,7 +16,7 @@ def get_playlist_ids():
 
 
 def get_playlist_song_positions(playlist_id):
-    playlist_xml = subsonic_getrequest(
+    playlist_xml = subsonic_requests.get(
         'getPlaylist', extra_param={'key': 'id', 'value': playlist_id}
     )
     playlist_dict = xmltodict.parse(playlist_xml)
