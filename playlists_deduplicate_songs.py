@@ -1,5 +1,18 @@
+import os
+import logging
 import xmltodict
 import subsonic_requests
+
+
+LOGLEVEL = os.environ.get('SSC_LOGLEVEL', 'INFO')
+LOGFILE = os.environ.get('SSC_LOGFILE', '/var/log/subsonic_playlists_dedup')
+
+logging.basicConfig(
+    filename=LOGFILE,
+    level=LOGLEVEL,
+    format='[%(asctime)s][%(levelname)s] %(message)s'
+)
+log = logging.getLogger()
 
 
 def get_playlist_ids():
@@ -51,12 +64,12 @@ def remove_duplicates(playlist):
     if not playlist['dups']:
         return
     else:
-        print('Found duplicates in playlist "{}":'.format(playlist['name']))
+        log.info('Found duplicates in playlist "{}":'.format(playlist['name']))
 
     dup_positions = []
     for dup_song in playlist['dups']:
         dup_positions.append(dup_song['position'])
-        print('- Removing duplicate song "{} - {} - {}"'.format(
+        log.info('- Removing duplicate song "{} - {} - {}"'.format(
             dup_song['@artist'], dup_song['@album'], dup_song['@title'])
         )
 
@@ -67,12 +80,14 @@ def remove_duplicates(playlist):
     )
     update_response = xmltodict.parse(update_response_xml)
     if update_response['subsonic-response']['@status'] == 'ok':
-        print('Duplicate removal successful.')
+        log.info('Duplicate removal successful.')
     else:
-        print('Duplicate remove failed:\n', update_response_xml)
+        log.info('Duplicate removal failed:\n', update_response_xml)
 
 
 if __name__ == "__main__":
+
+    log.info('Searching for duplicate entries in playlists...')
 
     playlist_ids = get_playlist_ids()
 
@@ -80,3 +95,5 @@ if __name__ == "__main__":
         songs_with_positions = get_playlist_song_positions(plid)
         playlist_with_duplicates = identify_duplicates(songs_with_positions)
         remove_duplicates(playlist_with_duplicates)
+
+    log.info('Done.')
