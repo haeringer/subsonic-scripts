@@ -47,6 +47,31 @@ def identify_duplicates(playlist):
     return pl_with_dups
 
 
+def remove_duplicates(playlist):
+    if not playlist['dups']:
+        return
+    else:
+        print('Found duplicates in playlist "{}":'.format(playlist['name']))
+
+    dup_positions = []
+    for dup_song in playlist['dups']:
+        dup_positions.append(dup_song['position'])
+        print('- Removing duplicate song "{} - {} - {}"'.format(
+            dup_song['@artist'], dup_song['@album'], dup_song['@title'])
+        )
+
+    update_response_xml = subsonic_requests.post(
+        'updatePlaylist',
+        playlistId=playlist['id'],
+        songIndexToRemove=dup_positions
+    )
+    update_response = xmltodict.parse(update_response_xml)
+    if update_response['subsonic-response']['@status'] == 'ok':
+        print('Duplicate removal successful.')
+    else:
+        print('Duplicate remove failed:\n', update_response_xml)
+
+
 if __name__ == "__main__":
 
     playlist_ids = get_playlist_ids()
@@ -54,3 +79,4 @@ if __name__ == "__main__":
     for plid in playlist_ids:
         songs_with_positions = get_playlist_song_positions(plid)
         playlist_with_duplicates = identify_duplicates(songs_with_positions)
+        remove_duplicates(playlist_with_duplicates)
