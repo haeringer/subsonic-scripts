@@ -16,16 +16,16 @@ def generate_token():
 
 def get(path, extra_param=None):
     token, salt = generate_token()
-    params = {'u': const.USER, 't': token, 's': salt, 'v': const.VERSION, 'c': const.CLIENT}
+    params = {'u': const.USER, 't': token, 's': salt, 'v': const.VERSION, 'c': const.CLIENT, 'f': const.FORMAT}
     if extra_param:
         params[extra_param['key']] = extra_param['value']
     response = requests.get(const.SERVER + "/rest/" + path, params=params)
-    return response.text
+    return response
 
 
 def post(path, **kwargs):
     token, salt = generate_token()
-    params = {'u': const.USER, 't': token, 's': salt, 'v': const.VERSION, 'c': const.CLIENT}
+    params = {'u': const.USER, 't': token, 's': salt, 'v': const.VERSION, 'c': const.CLIENT, 'f': const.FORMAT}
     params_merged = {**params, **kwargs}
     response = requests.post(const.SERVER + "/rest/" + path, params=params_merged)
-    return response.text
+    return response

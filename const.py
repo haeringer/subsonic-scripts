@@ -7,6 +7,7 @@ USER = os.environ.get('SSC_USER')
 PASSWD = os.environ.get('SSC_PASSWD')
 
 CLIENT = 'subsonic_scripts'
+FORMAT = 'json'
 
 LOGLEVEL = os.environ.get('SSC_LOGLEVEL', 'INFO')
 LOGFILE = os.environ.get('SSC_LOGFILE', '/var/log/subsonic_playlists_dedup')
